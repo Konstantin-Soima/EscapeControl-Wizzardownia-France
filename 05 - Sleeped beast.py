@@ -19,12 +19,6 @@ lang = api.GetParameter("language")
 hint_sound = 9
 if lang == 1:
     hint_sound = 10 
-short_hint_sound = 6
-if lang == 1:
-    short_hint_sound = 7
-wakeup_Sound = 4
-if lang == 1:
-    wakeup_Sound = 4 #TODO: replace to guden tag
 pins_analog = [57, 58, 59, 60, 61]
 pins_digital = [3, 4, 5, 6, 7]
 sensity = [75, 60, 82, 60, 86]

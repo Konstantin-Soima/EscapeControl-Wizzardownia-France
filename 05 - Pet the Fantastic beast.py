@@ -24,7 +24,7 @@ if lang == 1:
     short_hint_sound = 7
 wakeup_Sound = 4
 if lang == 1:
-    wakeup_Sound = 104
+    wakeup_Sound = 204
 pins_analog = [57, 58, 59, 60, 61]
 pins_digital = [3, 4, 5, 6, 7]
 sensity = [75, 60, 82, 60, 86]
@@ -64,26 +64,11 @@ def calibrate_sensors():
 
 calibrate_sensors()
 
-# Проверка состояния сна
-def check_sleep_state():
-    sleeped = True
-    while sleeped:
-        sleeped = not api.GetParameter("frogSongEnd")
-        cur = [0]*5
-        for i in range(5):
-            aPin = api.GPIOReadAnalog(beastDev, pins_digital[i])
-            cur[i] = aPin
-            if aPin >= sensity[i]:
-                api.Log("I am sleep! Pin:" + str(pins_digital[i]) + " sens:" + str(aPin))
-                api.DFPlayerPlayFolder(beastDev, DF, folder, sleeping_sound)
-                sleep(12)
-        dif = [a - b for a, b in zip(start, cur)]
-        api.Log(dif)
-        sleep(0.4)
 
 # Реакции на касания
 def handle_reactions():
     api.DFPlayerPlayFolder(beastDev, DF, folder, wakeup_Sound)  # Пробуждение
+    sleep(10)
     step = 0
     cur = -1
     current = [False]*5
@@ -151,6 +136,5 @@ def repeat_answer():
                     activated = [-2] * 5
         sleep(0.3)
 
-check_sleep_state()
 handle_reactions()
 repeat_answer()

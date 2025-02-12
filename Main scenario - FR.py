@@ -141,18 +141,24 @@ def waitTapestry():
     playTxt("Tapestry_solved_FR")
 
 def waitAlchemical():
+    rfidControlPin = 12         # Пин для управления RFID (ON/OFF)
+    magicBallsLedControlPin = 11          # Пин для управления LED
+    magicBallsDoorPin = 22      # Пин для двери с магическими шарами
     api = EscapeControlAPI()
     sleep(0.2)
+    api.GPIOSet(alchiDev, magicBallsDoorPin, False) #OPEN MAGIC BALLS DOOR
+    magicBallsDoorPin
     api.LocksWait(13)
     playSfx("alchemy_adding_ingredients")
     api.ScenarioStop(13)
     api.ScenarioStop(12)#Kill magic ball reader
-    api.GPIOSet(alchiDev, 14, False) #RFID Off
+    api.GPIOSet(alchiDev, rfidControlPin, False) #RFID Off
+    api.GPIOSet(alchiDev, rfidControlPin, False) #RFID Off
     animation = range(149)
     for i in animation:
         api.GPIOSetAnalog(alchiDev, alchemicalLED, int(abs(math.sin(i / math.pi) * 256)))  # LED-
         sleep(0.01)
-    api.GPIOSet(alchiDev, 11, False) #Light Off magic ball
+    api.GPIOSet(alchiDev, magicBallsLedControlPin, False) #Light Off magic ball
     playTxt("Director_reappears_FR")
     sleep(20)
 
