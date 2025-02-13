@@ -173,6 +173,7 @@ def waitCastle():
     sleep(25)
     playTxt("Outro_DE")
 
+'''Ghost box actions'''
 def splashGhostBox():
     for rgb in range(3):
         api.GPIOSetAnalog(ghostDev, ghostRgbPins[rgb], 255)
@@ -185,20 +186,17 @@ def splashGhostBox():
     api.GPIOSetAnalog(ghostDev, ghostRgbPins[2], 200)  # Синий цвет
 
 def silentHit():  # Еле бьёт
-    api.GPIOSet(ghostDev, motorPin, True)
-    sleep(0.02)  # Мотор не успевает сработать
-    api.GPIOSet(ghostDev, motorPin, False)
+    hit(0.02)  # Мотор не успевает сработать
 
 def silentHit2():  # Средне бьёт
+    hit(0.045) # Мотор тут же возвращается обратно
+
+def hit(duration = 0.07):  # Сильно бьёт
     api.GPIOSet(ghostDev, motorPin, True)
-    sleep(0.045)  # Мотор тут же возвращается обратно
+    sleep(duration)  # Двойной удар: вверх и вниз из-за долгой паузы
     api.GPIOSet(ghostDev, motorPin, False)
 
-def hit():  # Сильно бьёт
-    api.GPIOSet(ghostDev, motorPin, True)
-    sleep(0.07)  # Двойной удар: вверх и вниз из-за долгой паузы
-    api.GPIOSet(ghostDev, motorPin, False)
-
+'''First room'''
 def room1():
     api.Log("Welcome to the Game")
     # Изначально свет в комнате почти отсутствует. Световой спот горит над шкатулкой с палочками.
@@ -227,7 +225,7 @@ def room1():
     # Активация шлюза
     api.ScenarioStart(9)
 
-
+'''Second room'''
 def room2():
     api.Log("Office opened")
     api.GPIOSet(mainDev, room2_light, True)
