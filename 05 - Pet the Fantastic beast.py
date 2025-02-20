@@ -1,6 +1,5 @@
 from api import EscapeControlAPI
 from time import sleep, time
-from threading import Thread
 
 api = EscapeControlAPI()
 
@@ -15,23 +14,20 @@ volume = 25
 sleeping_sound = 5
 correct_sound = 3
 incorrect_sound = 2
-lang = api.GetParameter("language")
+lang = 1#api.GetParameter("language")
 hint_sound = 9
-if lang == 1:
-    hint_sound = 10 
-short_hint_sound = 6
-if lang == 1:
-    short_hint_sound = 7
+if lang == 1 or True:
+    hint_sound = 209 
 wakeup_Sound = 4
 if lang == 1:
     wakeup_Sound = 204
-pins_analog = [57, 58, 59, 60, 61]
-pins_digital = [3, 4, 5, 6, 7]
+pins_analog = [54, 55, 56 ,57, 58]
+pins_digital = [0,1,2,3, 4]
 sensity = [75, 60, 82, 60, 86]
 sensity_range = [
-    range(60, 140), range(60, 140), range(60, 135), range(60, 140), range(60, 137)
+    range(60, 140), range(58, 140), range(60, 135), range(58, 140), range(60, 137)
 ]
-seq = [0, 3, 1]  # Последовательность
+seq = [0, 3, 2]  # Последовательность
 longed = 5  # Порог активации
 activated = [0] * 5
 deactivated = [0] * 5
@@ -42,28 +38,6 @@ sleep(0.1)
 api.DFPlayerVolume(beastDev, DF, volume)
 sleep (0.2)
 api.DFPlayerStop(beastDev, DF)
-'''
-sleep(1)
-api.Log("correct play")
-api.DFPlayerPlayFolder(beastDev, DF, folder, correct_sound)
-sleep (5)
-api.DFPlayerStop(beastDev, DF)
-sleep(1)
-api.Log("incorrect play")
-api.DFPlayerPlayFolder(beastDev, DF, folder, incorrect_sound)
-'''
-# Калибровка сенсоров
-start = [0]*5
-def calibrate_sensors():
-    api.Log("Starting sensitivity calibration")
-    for i in range(5):
-        api.GPIOMode(beastDev, pins_analog[i], 0)  # Правильный режим для аналоговых пинов
-        aPin = api.GPIOReadAnalog(beastDev, pins_analog[i])
-        api.Log("Analog PIN " + str(pins_analog[i]) + " value: " + str(aPin))
-        start[i] = aPin
-
-calibrate_sensors()
-
 
 # Реакции на касания
 def handle_reactions():
@@ -119,22 +93,6 @@ def handle_reactions():
         if api.GPIORead(beastDev, BUSY):
             currentPlay = 0
     api.DFPlayerPlayFolder(beastDev, DF, folder, hint_sound)
-    api.LocksUnlock(7)
-
-# Повторение ответа
-def repeat_answer():
-    activated = [-2] * 5
-    while True:
-        for i in range(5):
-            aPin = api.GPIOReadAnalog(beastDev, pins_digital[i])
-            if aPin >= sensity[i]:
-                activated[i] += 1
-                api.Log("Signal on pin:" + str(pins_digital[i]) + " value:" + str(aPin))
-                if activated[i] >= longed:
-                    api.DFPlayerPlayFolder(beastDev, DF, folder, short_hint_sound)
-                    sleep(32)
-                    activated = [-2] * 5
-        sleep(0.3)
 
 handle_reactions()
-repeat_answer()
+api.LocksUnlock(7)
