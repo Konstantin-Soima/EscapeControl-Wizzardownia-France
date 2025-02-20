@@ -1,4 +1,5 @@
 from api import EscapeControlAPI
+import threading
 from time import sleep
 from time import time
 import math
@@ -17,9 +18,9 @@ treeDev = 8
 castleDev = 9
 
 '''LIGHTS'''
-wandSpot = 45
-room1_light = 44
-room2_light = 46
+wandSpot = 11
+room1_light = 10
+room2_light = 12
 
 '''MAGNET LOCKS'''
 doorLock1 = 16
@@ -97,8 +98,8 @@ def waitBoxWithGhost(): #Scenario 4
     api.GPIOSet(ghostDev, motorPin, False)
     for rgb in range(3):  # обнуляем всё
         api.GPIOSetAnalog(ghostDev, ghostRgbPins[rgb], 0)
-    playTxt("Heed_the_ghost_s_message_FR")
-    api.ScenarioStop(7) #kill all parralel reading
+    playTxt("Heed_the_gost_message_FR")
+    api.ScenarioStop(48) #kill all parralel reading
     api.ScenarioStop(4)
     player_ost.volume(160)
 
@@ -196,10 +197,37 @@ def hit(duration = 0.07):  # Сильно бьёт
     sleep(duration)  # Двойной удар: вверх и вниз из-за долгой паузы
     api.GPIOSet(ghostDev, motorPin, False)
 
+def setFadeLight(device,color,duration):
+    color_map = {
+        "Yellow": (255, 170, 0),
+        "Blue": (135, 66, 200),
+        "Off": (0, 0, 0),
+    }
+    a = 3.0
+    steps = duration * 10
+    rgb = color_map[color]
+    def fade():
+        api = EscapeControlAPI()
+        for step in range(steps):
+            fraction = (math.exp(a * step / steps) - 1) / (math.exp(a) - 1)
+
+            api.GPIOSetAnalog(device, ghostRgbPins[0], int(rgb[1] * fraction)) #GRB Pins
+            api.GPIOSetAnalog(device, ghostRgbPins[1], int(rgb[0] * fraction))
+            api.GPIOSetAnalog(device, ghostRgbPins[2], int(rgb[2] * fraction))
+            sleep(0.1)
+            api.Log("sleep:"+str(duration/steps)+" R: "+str(fraction))
+    # Запускаем анимацию в отдельном потоке
+    thread = threading.Thread(target=fade)
+    thread.daemon = True
+    thread.start()
+
+api.SetParameter("language", 1) #set France directly
 '''First room'''
 def room1():
     api.Log("Welcome to the Game")
     # Изначально свет в комнате почти отсутствует. Световой спот горит над шкатулкой с палочками.
+    setFadeLight(elfDev,"Off",1)
+    setFadeLight(ghostDev,"Off",1)
     api.GPIOSet(mainDev, wandSpot, True)
     api.GPIOSet(mainDev, room1_light, False)
     api.GPIOSet(mainDev, doorLock1, True)
@@ -207,20 +235,21 @@ def room1():
     api.ScenarioStart(3)
     api.LocksWait(3)
     # Когда игроки берут палочки, срабатывает электроника и проигрывается аудио.Загорается свет в комнате.
-    playTxt("Intro_DE")
-    sleep(53)
+    playTxt("Intro_FR")
+    setFadeLight(elfDev, "Yellow", 60)
+    setFadeLight(ghostDev, "Blue", 60)
+    sleep(48)
     playOst("ambience_1")
     api.GPIOSet(mainDev, room1_light, True)
-    # Все загадки активны со входа
     api.ScenarioStart(4)
-    api.ScenarioStart(5)
-    api.ScenarioStart(7)
+    api.ScenarioStart(48)
     api.ScenarioStart(8)#TODO: change number of additional scenario for Hand light
     waitBoxWithGhost()
     api.ScenarioStart(6)
     waitKnockingToTheDoor()
     waitToadPlayer()
-    api.ScenarioStart(8)
+    api.ScenarioStop(48)
+    api.ScenarioStart(7)
     waitCabinetCombination()
     # Активация шлюза
     api.ScenarioStart(9)
