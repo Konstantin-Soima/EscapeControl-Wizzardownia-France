@@ -27,6 +27,7 @@ doorLock1 = 16
 maglock1 = 17
 maglock2 = 18
 doorLock2 = 19
+elfenDoorMagnet = 19
 
 api.GPIOSet(mainDev,maglock1,True)
 api.GPIOSet(mainDev,maglock2,True)

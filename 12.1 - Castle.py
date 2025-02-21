@@ -5,26 +5,25 @@ from time import time
 from threading import Thread
 import random 
 
-
 api = EscapeControlAPI()
 
 castleDev = 9
-ws = [58, 60, 61, 59]
-NE = 64 # 54 - yellow dragon NE
-NW = 56 # 58 - red tree NW
-SE = 4 # 66 - green crack SE
-SW = 8 # 62 - blue eggs SW
-NEseq = [[3,9,7,57],[57,7,9,3]]
-NWseq = [[9,2,55,62],[62,55,2,9]]
-SEseq = [[6,55,5,63],[63,5,55,6]]
-SWseq = [[65,7,54,6],[6,54,7,65]]
+ws = [62, 66, 65, 64, 63]
+NE = 4 # - yellow dragon NE
+NW = 55 # - red tree NW
+SE = 2 # - green crack SE
+SW = 57 # - blue eggs SW
+NEseq = [[6,58,61,60],[60,61,58,6]]
+NWseq = [[58,7,56,5],[5,56,7,58]]
+SEseq = [[9,56,54,8],[8,54,56,9]]
+SWseq = [[3,61,59,9],[9,59,61,3]]
 NEend, SEend, NWend, SWend = False, False, False, False
 towers = [NE,NW,SW,SE]
 towersRange = {
-    NE: range(8,15),
-    NW: range(0,8),
-    SW: range(26,40),
-    SE: range(16,25)
+    NE: range(18,34),
+    NW: range(0,17),
+    SW: range(55,68),
+    SE: range(36,53)
 }
 towersColour = {
     NE: [128, 255, 0],
@@ -34,20 +33,20 @@ towersColour = {
 }
 active = 0
 activeColour = [0,0,0]
-pins = [2,3,5,6,7,9,54,55,57,62,63,65]
+pins = [3,5,6,7,8,9,54,56,58,59,60,61]
 pinsLedIndex = [
-    [2,[0,1,2,3]],
-    [3,[100,101,102,103]],
-    [5,[87,88,89]],
-    [6,[80,81,82,83]],
-    [7,[74,75,76]],
-    [9,[60,61,62,63]],
-    [54,[54,55,56]],
-    [55,[47,48,49]],
-    [57,[33,34,35,36]],
-    [62,[27,28,29,30]],
-    [63,[21,22,23]],
-    [65,[7,8,9,10]]
+    [3,[15,16,17,18]],
+    [5,[34,35,36,37]],
+    [6,[4,5,6,7]],
+    [7,[10,11,12,13]],
+    [8,[29,30,31,32]],
+    [9,[91,92,93,94]],
+    [54,[98,99,100,101]],
+    [56,[55,56,57,58]],
+    [58,[69,70,71,72]],
+    [59,[64,65,66,67]],
+    [60,[41,42,43,44]],
+    [61,[84,85,86,87]]
 ]
 stack = [None]*4
 player_sfx = api.connectToPlayer(2)  # Плеер ситуационных звуков
@@ -66,9 +65,11 @@ def stackAppend(n):
         stack[3] = n
 
 api.WS2812Init(castleDev, 1, ws[0], 15)  # Microhome
-api.WS2812Init(castleDev, 2, ws[1], 41) # 10 на башню
+api.WS2812Init(castleDev, 2, ws[1], 70) # 18 на башню
 api.WS2812Init(castleDev, 3, ws[2], 107)  # Pin panel по часовой
 api.WS2812Init(castleDev, 4, ws[3], 95)  # Castle 
+api.WS2812Init(castleDev, 5, ws[4], 95)  # Castle Big Tower
+
 
 
 for i in range(0, 40): #Towers Light OFF
@@ -99,6 +100,27 @@ def circleColor(startPos,R,G,B): #circle activate Animation
 def offCircle():
     for i in range(0,107):
         api.WS2812Set(castleDev, 3, i, 0, 0, 0)
+    api.WS2812Sync(castleDev, 3)
+
+TestMode = False
+while TestMode: #Помогает в поиске герконов и положения ленты относительно их
+    pos = 0
+    act = 0
+    new_activeColour = colorsys.hsv_to_rgb(random.uniform(0, 1),1,1)
+    l = [2,3,4,5,6,7,8,9,54,55,56,57,58,59,60,61]
+    r = api.GPIOReadList(castleDev,l)
+    while sum(r) == 15:
+        act = r.index(0)
+        #not api.GPIORead(castleDev, 2):
+        pos +=1
+        api.WS2812Set(castleDev, 3, pos, int(new_activeColour[1]*255), int(new_activeColour[0]*255), int(new_activeColour[2]*255)) #GRB LED
+        api.WS2812Sync(castleDev, 3)
+        sleep(0.5)
+        r = api.GPIOReadList(castleDev,l)
+    if pos > 0:
+        api.Log("Pin: " + str(l[act])+ " LED index: "+ str(pos))
+    for i in range(107):
+        api.WS2812Set(castleDev, 3, i, 0,0,0)
     api.WS2812Sync(castleDev, 3)
 
 prev = api.GPIOReadList(castleDev, pins)
