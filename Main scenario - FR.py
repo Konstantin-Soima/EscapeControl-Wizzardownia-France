@@ -27,7 +27,6 @@ doorLock1 = 16
 maglock1 = 17
 maglock2 = 18
 doorLock2 = 19
-elfenDoorMagnet = 19
 
 api.GPIOSet(mainDev,maglock1,True)
 api.GPIOSet(mainDev,maglock2,True)
@@ -121,8 +120,8 @@ def waitToadPlayer():
     #звук побудки
     sleep(0.1)
     api.DFPlayerPlayFolder(beastDev,playerPins[0],folder_id,wakeup_sound)
-    while not api.GPIORead(beastDev,):
-        sleep(0.5)
+    #while not api.GPIORead(beastDev,):
+    #    sleep(0.5)
     sleep(0.3)
     api.SetParameter('frogSongEnd', 1) 
 
@@ -170,10 +169,10 @@ def waitCastle():
     api.LocksWait(14)
     api.ScenarioStop(15)
     api.ScenarioStop(14)
-    playTxt("Activate_castle_protection_DE")
+    playTxt("Activate_castle_protection_FR")
     api.ScenarioStart(16) #Castle animation
     sleep(25)
-    playTxt("Outro_DE")
+    playTxt("Outro_FR")
 
 '''Ghost box actions'''
 def splashGhostBox():
@@ -246,8 +245,9 @@ def room1():
     api.ScenarioStart(48)
     api.ScenarioStart(8)#TODO: change number of additional scenario for Hand light
     waitBoxWithGhost()
-    api.ScenarioStart(6)
+    api.ScenarioStart(5)
     waitKnockingToTheDoor()
+    api.ScenarioStart(6)
     waitToadPlayer()
     api.ScenarioStop(48)
     api.ScenarioStart(7)

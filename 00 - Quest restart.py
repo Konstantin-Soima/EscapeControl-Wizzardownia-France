@@ -47,11 +47,11 @@ alchemicalRFID = 14
 '''AUDIO'''
 gamePlayersCount = 3
 dfrxtx = [
-    [2, 1, 58,57],
-    [3, 1, 9, 8],
-    [3, 4, 6, 7],
-    [6, 4, 54, 55],
-    [8, 5, 61, 60]
+    [ghostDev, 1, 58,57],
+    [beastDev, 1, 9, 8],
+    [beastDev, 4, 6, 7],
+    [cabinet2Dev, 4, 55, 54],
+    [treeDev, 5, 61, 60]
 ]  # Device,DFNumber,RX,TX
 #Open/Exit doors opened
 api.GPIOSet(mainDev, doorRoom1, False)  # Enter
