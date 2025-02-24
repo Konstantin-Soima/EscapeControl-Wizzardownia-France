@@ -23,21 +23,38 @@ room1_light = 10
 room2_light = 12
 
 '''MAGNET LOCKS'''
-doorLock1 = 16
-maglock1 = 17
-maglock2 = 18
-doorLock2 = 19
+doorRoom1 = 18 #Eter
+doorRoom2 = 23 #Exit
+elfenDoorMagnet = 19
+magicBallsMagnet = 22
+cabinetRoom2locker =21
+chainsMagnet = 20
+cabinetRoom1magnet = 17
+cabinetRoom2magnet = 16
 
-api.GPIOSet(mainDev,maglock1,True)
-api.GPIOSet(mainDev,maglock2,True)
+'''LEDs'''
+rgbPins = [10, 11, 12]
+handLight = 10
+alchemicalLED = 10
+magicBallLED = 12
+cabinetUVControlPin = 11
+mossLED = 11
+ws = [62, 66, 65, 64, 63]
 
 '''PINS'''
 motorPin = 56 #Spirit Box solenoid
-ghostRgbPins = [10, 11, 12]
-handLight = 14  # M-
-alchemicalLED = 10
+mossPin = 10
+magicBallRFID = 11
+alchemicalRFID = 14
 
-'''Initialization of players'''
+'''AUDIO'''
+dfrxtx = [
+    [ghostDev, 1, 58,57],
+    [beastDev, 1, 9, 8],
+    [beastDev, 4, 6, 7],
+    [cabinet2Dev, 4, 55, 54],
+    [treeDev, 5, 61, 60]
+]  # Device,DFNumber,RX,TX
 player_ost = api.connectToPlayer(1)  # Плеер фоновых саундтреков
 player_sfx = api.connectToPlayer(2)  # Плеер ситуационных звуков
 player_txt = api.connectToPlayer(3)  # Плеер ситуационных звуков
@@ -99,7 +116,7 @@ def waitBoxWithGhost(): #Scenario 4
     sleep(2)
     api.GPIOSet(ghostDev, motorPin, False)
     for rgb in range(3):  # обнуляем всё
-        api.GPIOSetAnalog(ghostDev, ghostRgbPins[rgb], 0)
+        api.GPIOSetAnalog(ghostDev, rgbPins[rgb], 0)
     playTxt("Heed_the_gost_message_FR")
     api.ScenarioStop(48) #kill all parralel reading
     api.ScenarioStop(4)
@@ -179,14 +196,14 @@ def waitCastle():
 '''Ghost box actions'''
 def splashGhostBox():
     for rgb in range(3):
-        api.GPIOSetAnalog(ghostDev, ghostRgbPins[rgb], 255)
+        api.GPIOSetAnalog(ghostDev, rgbPins[rgb], 255)
     sleep(0.02)
     for rgb in range(3):
-        api.GPIOSetAnalog(ghostDev, ghostRgbPins[rgb], 0)
+        api.GPIOSetAnalog(ghostDev, rgbPins[rgb], 0)
     sleep(0.5)
-    api.GPIOSetAnalog(ghostDev, ghostRgbPins[0], 66)  # Красный цвет
-    api.GPIOSetAnalog(ghostDev, ghostRgbPins[1], 135)  # Зеленый цвет
-    api.GPIOSetAnalog(ghostDev, ghostRgbPins[2], 200)  # Синий цвет
+    api.GPIOSetAnalog(ghostDev, rgbPins[0], 66)  # Красный цвет
+    api.GPIOSetAnalog(ghostDev, rgbPins[1], 135)  # Зеленый цвет
+    api.GPIOSetAnalog(ghostDev, rgbPins[2], 200)  # Синий цвет
 
 def silentHit():  # Еле бьёт
     hit(0.02)  # Мотор не успевает сработать
@@ -213,9 +230,9 @@ def setFadeLight(device,color,duration):
         for step in range(steps):
             fraction = (math.exp(a * step / steps) - 1) / (math.exp(a) - 1)
 
-            api.GPIOSetAnalog(device, ghostRgbPins[0], int(rgb[1] * fraction)) #GRB Pins
-            api.GPIOSetAnalog(device, ghostRgbPins[1], int(rgb[0] * fraction))
-            api.GPIOSetAnalog(device, ghostRgbPins[2], int(rgb[2] * fraction))
+            api.GPIOSetAnalog(device, rgbPins[0], int(rgb[1] * fraction)) #GRB Pins
+            api.GPIOSetAnalog(device, rgbPins[1], int(rgb[0] * fraction))
+            api.GPIOSetAnalog(device, rgbPins[2], int(rgb[2] * fraction))
             sleep(0.1)
             api.Log("sleep:"+str(duration/steps)+" R: "+str(fraction))
     # Запускаем анимацию в отдельном потоке
@@ -232,8 +249,8 @@ def room1():
     setFadeLight(ghostDev,"Off",1)
     api.GPIOSet(mainDev, wandSpot, True)
     api.GPIOSet(mainDev, room1_light, False)
-    api.GPIOSet(mainDev, doorLock1, True)
-    api.GPIOSet(mainDev, doorLock2, True)
+    api.GPIOSet(mainDev, doorRoom1, True) #Lock the players
+    api.GPIOSet(mainDev, doorRoom2, True)
     api.ScenarioStart(3)
     api.LocksWait(3)
     # Когда игроки берут палочки, срабатывает электроника и проигрывается аудио.Загорается свет в комнате.
@@ -278,10 +295,10 @@ def room2():
     waitCastle()
 
     api.ScenarioStop(9)
-    api.GPIOSet(mainDev, doorLock1, False)    
-    api.GPIOSet(mainDev, maglock1, False)
-    api.GPIOSet(mainDev, maglock2, False)
-    api.GPIOSet(mainDev, doorLock2, False) 
+    api.GPIOSet(mainDev, doorRoom1, False)    
+    api.GPIOSet(mainDev, doorRoom2, False)
+    api.GPIOSet(mainDev, cabinetRoom1magnet, False)
+    api.GPIOSet(mainDev, cabinetRoom2magnet, False) 
 
 room1()
 room2()
