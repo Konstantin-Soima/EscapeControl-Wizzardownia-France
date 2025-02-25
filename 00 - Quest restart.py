@@ -53,6 +53,10 @@ dfrxtx = [
     [cabinet2Dev, 4, 55, 54],
     [treeDev, 5, 61, 60]
 ]  # Device,DFNumber,RX,TX
+#Stop all scenarios
+api.ScenarioStop(1) #Except 2nd scenario (Quest restart)
+for i in range(3, 55):
+    api.ScenarioStop(i)
 #Open/Exit doors opened
 api.GPIOSet(mainDev, doorRoom1, False)  # Enter
 api.GPIOSet(mainDev, doorRoom2, False)  # Exit
@@ -71,6 +75,7 @@ api.GPIOSet(cabinet1Dev,cabinetUVControlPin,False) # Doors UV
 api.GPIOSet(cabinet1Dev,handLight, False) 
 api.GPIOSet(alchiDev, alchemicalLED,False) # Alchimic led
 api.GPIOSet(alchiDev, magicBallLED,False) # Ball led
+api.GPIOSet(cabinet2Dev, mossLED, False) # Moss led
 api.GPIOSet(ghostDev, RgbPins[0], False) # Ghost RGB
 api.GPIOSet(ghostDev, RgbPins[1], False) # Ghost RGB
 api.GPIOSet(ghostDev, RgbPins[2], False) # Ghost RGB
