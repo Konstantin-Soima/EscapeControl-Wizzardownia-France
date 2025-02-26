@@ -85,8 +85,7 @@ def waitBoxWithGhost(): #Scenario 4
     sleep(0.2)
     api.LocksWait(4)
     #Outro animation
-    api.GPIOSetAnalog(mainDev,room1Light,30)
-    setFadeLight(elfDev, "Yellow", 60)
+    api.GPIOSetAnalog(mainDev,room1Light,10)
     api.DFPlayerBegin(ghostDev, playerPins[0], playerPins[1], playerPins[2])
     sleep(0.2)
     api.DFPlayerStop(ghostDev, playerPins[0])
@@ -123,6 +122,7 @@ def waitBoxWithGhost(): #Scenario 4
     api.ScenarioStop(48) #kill all parralel reading
     api.ScenarioStop(4)
     player_ost.volume(160)
+    setFadeLight(elfDev, "Yellow", 40)
     sleep(36)
     api.GPIOSet(mainDev, room1Light, True)
 
@@ -136,18 +136,15 @@ def waitKnockingToTheDoor(): #Scenario 5
 
 def waitToadPlayer():
     api = EscapeControlAPI()
-    playerPins = [2,6, 7,60] #DF Player number, RX pin, TX pin, Busy
     folder_id = 2
     wakeup_sound = 2
     api.LocksWait(6)
+    api.ScenarioStop(6)
     #звук побудки
     sleep(0.1)
-    api.DFPlayerPlayFolder(beastDev,playerPins[1],folder_id,wakeup_sound)
-    #while not api.GPIORead(beastDev,):
-    #    sleep(0.5)
+    api.DFPlayerPlayFolder(dfrxtx[2][0],dfrxtx[2][1],folder_id,wakeup_sound)
     sleep(10)
     api.SetParameter('frogSongEnd', 1) 
-    api.ScenarioStop(6)
 
 
 def waitCabinetCombination():
@@ -219,8 +216,10 @@ def silentHit2():  # Средне бьёт
 
 def hit(duration = 0.07):  # Сильно бьёт
     api.GPIOSet(ghostDev, motorPin, True)
+    api.GPIOSet(mainDev,room1Light,False)
     sleep(duration)  # Двойной удар: вверх и вниз из-за долгой паузы
     api.GPIOSet(ghostDev, motorPin, False)
+    api.GPIOSetAnalog(mainDev,room1Light,20)
 
 def setFadeLight(device,color,duration):
     color_map = {
@@ -240,7 +239,6 @@ def setFadeLight(device,color,duration):
             api.GPIOSetAnalog(device, rgbPins[1], int(rgb[0] * fraction))
             api.GPIOSetAnalog(device, rgbPins[2], int(rgb[2] * fraction))
             sleep(0.1)
-            api.Log("sleep:"+str(duration/steps)+" R: "+str(fraction))
     # Запускаем анимацию в отдельном потоке
     thread = threading.Thread(target=fade)
     thread.daemon = True
@@ -264,6 +262,7 @@ def room1():
     setFadeLight(ghostDev, "Blue", 60)
     sleep(64)
     playOst("ambience_1")
+    api.GPIOSet(mainDev, wandSpot, False)
     api.GPIOSet(mainDev, room1Light, True)
     api.ScenarioStart(4)
     api.ScenarioStart(48)#sleeped beast
