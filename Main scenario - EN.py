@@ -19,26 +19,26 @@ castleDev = 9
 
 '''LIGHTS'''
 wandSpot = 11
-room1_light = 10
-room2_light = 12
+room1Light = 10
+room2Light = 12
 
 '''MAGNET LOCKS'''
 doorRoom1 = 18 #Eter
 doorRoom2 = 23 #Exit
 elfenDoorMagnet = 19
 magicBallsMagnet = 22
-cabinetRoom2locker =21
+UVLightLocker = 21
 chainsMagnet = 20
 cabinetRoom1magnet = 17
 cabinetRoom2magnet = 16
 
 '''LEDs'''
 rgbPins = [10, 11, 12]
-handLight = 10
-alchemicalLED = 10
-magicBallLED = 12
+handLightPin = 10
+alchemicalLEDPin = 10
+magicBallLEDPin = 12
 cabinetUVControlPin = 11
-mossLED = 11
+mossLEDPin= 11
 ws = [62, 66, 65, 64, 63]
 
 '''PINS'''
@@ -85,6 +85,8 @@ def waitBoxWithGhost(): #Scenario 4
     sleep(0.2)
     api.LocksWait(4)
     #Outro animation
+    api.GPIOSetAnalog(mainDev,room1Light,30)
+    setFadeLight(elfDev, "Yellow", 60)
     api.DFPlayerBegin(ghostDev, playerPins[0], playerPins[1], playerPins[2])
     sleep(0.2)
     api.DFPlayerStop(ghostDev, playerPins[0])
@@ -117,10 +119,12 @@ def waitBoxWithGhost(): #Scenario 4
     api.GPIOSet(ghostDev, motorPin, False)
     for rgb in range(3):  # обнуляем всё
         api.GPIOSetAnalog(ghostDev, rgbPins[rgb], 0)
-    playTxt("Heed_the_gost_message_FR")
+    playTxt("heed_the_ghost_s_message")
     api.ScenarioStop(48) #kill all parralel reading
     api.ScenarioStop(4)
     player_ost.volume(160)
+    sleep(36)
+    api.GPIOSet(mainDev, room1Light, True)
 
 def waitKnockingToTheDoor(): #Scenario 5
     api = EscapeControlAPI()
@@ -128,21 +132,23 @@ def waitKnockingToTheDoor(): #Scenario 5
     player_ost.volume(180) #Higher OST music 
     api.GPIOSet(mainDev, 19, False) #Elf's door lock    
     api.ScenarioStop(5)
-    api.ScenarioStart(7)
+    api.ScenarioStart(48)
 
 def waitToadPlayer():
     api = EscapeControlAPI()
-    playerPins = [2,9,54,56] #DF Player number, RX pin, TX pin, Busy
+    playerPins = [2,6, 7,60] #DF Player number, RX pin, TX pin, Busy
     folder_id = 2
     wakeup_sound = 2
     api.LocksWait(6)
     #звук побудки
     sleep(0.1)
-    api.DFPlayerPlayFolder(beastDev,playerPins[0],folder_id,wakeup_sound)
+    api.DFPlayerPlayFolder(beastDev,playerPins[1],folder_id,wakeup_sound)
     #while not api.GPIORead(beastDev,):
     #    sleep(0.5)
-    sleep(0.3)
+    sleep(10)
     api.SetParameter('frogSongEnd', 1) 
+    api.ScenarioStop(6)
+
 
 def waitCabinetCombination():
     api = EscapeControlAPI()
@@ -152,7 +158,7 @@ def waitCabinetCombination():
     api.ScenarioStop(8)
     api.ScenarioStop(8)#TODO: number of additional scenario for Hand light
     api.GPIOSet(mainDev, 20, False)  # Chains lock
-    api.GPIOSet(cabinet1Dev,handLight,False)
+    api.GPIOSet(cabinet1Dev,handLightPin,False)
 
 def waitTapestry():
     api = EscapeControlAPI()
@@ -176,7 +182,7 @@ def waitAlchemical():
     api.GPIOSet(alchiDev, rfidControlPin, False) #RFID Off
     animation = range(149)
     for i in animation:
-        api.GPIOSetAnalog(alchiDev, alchemicalLED, int(abs(math.sin(i / math.pi) * 256)))  # LED-
+        api.GPIOSetAnalog(alchiDev, alchemicalLEDPin, int(abs(math.sin(i / math.pi) * 256)))  # LED-
         sleep(0.01)
     api.GPIOSet(alchiDev, magicBallsLedControlPin, False) #Light Off magic ball
     playTxt("director_reappears")
@@ -248,20 +254,20 @@ def room1():
     setFadeLight(elfDev,"Off",1)
     setFadeLight(ghostDev,"Off",1)
     api.GPIOSet(mainDev, wandSpot, True)
-    api.GPIOSet(mainDev, room1_light, False)
+    api.GPIOSet(mainDev, room1Light, False)
     api.GPIOSet(mainDev, doorRoom1, True) #Lock the players
     api.GPIOSet(mainDev, doorRoom2, True)
     api.ScenarioStart(3)
     api.LocksWait(3)
     # Когда игроки берут палочки, срабатывает электроника и проигрывается аудио.Загорается свет в комнате.
     playTxt("intro")
-    setFadeLight(elfDev, "Yellow", 60)
     setFadeLight(ghostDev, "Blue", 60)
     sleep(64)
     playOst("ambience_1")
-    api.GPIOSet(mainDev, room1_light, True)
+    api.GPIOSet(mainDev, room1Light, True)
     api.ScenarioStart(4)
-    api.ScenarioStart(48)
+    api.ScenarioStart(48)#sleeped beast
+    api.ScenarioStart(55)#silent Toad player
     api.ScenarioStart(8)#TODO: change number of additional scenario for Hand light
     waitBoxWithGhost()
     api.ScenarioStart(5)
@@ -277,14 +283,14 @@ def room1():
 
 def room2():
     api.Log("Office opened")
-    api.GPIOSet(mainDev, room2_light, True)
+    api.GPIOSet(mainDev, room2Light, True)
     playOst("ambience_2")
     api.LocksWait(9)
     sleep(60)
     playTxt("click_on_books")
     api.ScenarioStart(10)
     api.LocksWait(10)
-    api.GPIOSet(mainDev, 21, False)  # Lighter Locker
+    api.GPIOSet(mainDev, UVLightLocker, False)  # Lighter Locker
     api.ScenarioStart(11)
     waitTapestry()
     api.ScenarioStart(12)

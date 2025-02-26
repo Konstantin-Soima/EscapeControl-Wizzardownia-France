@@ -34,7 +34,7 @@ exit_sound = 3
 api.DFPlayerBegin(ghostDev, DF, RX, TX)
 sleep(0.2)
 api.DFPlayerVolume(ghostDev, DF, volume)
-
+isAngry = True
 def push():
     for i in range(skyColor[1],255,4):
         api.GPIOSetAnalog(ghostDev, rgb_pins[1], i)  # rGb
@@ -59,6 +59,11 @@ def scrapers():
     while alive:
         api.DFPlayerPlayFolder(ghostDev, DF, folder_id, ghost_sound)
         sleep(0.2)
+        realHit = random.randint(0, 1)
+        if realHit and isAngry:
+            api.GPIOSet(ghostDev, motorPin, True)
+            sleep(0.1)
+            api.GPIOSet(ghostDev, motorPin, False)
         while not api.GPIORead(ghostDev,BUSY) and alive:
             sleep(0.2)
         api.DFPlayerVolume(ghostDev, DF, 28)
@@ -98,12 +103,15 @@ prev = api.GPIOReadList(ghostDev, [2, 3, 4, 5, 6, 7, 8, 9, 54])
 while True:  # чтение касания палочек
     contact = api.GPIOReadList(ghostDev, [2, 3, 4, 5, 6, 7, 8, 9, 54])
     if 8 >= sum(contact) >= 5:
+        isAngry = False
         diff = [x - y for x, y in zip(prev, contact)]
         if sum(diff) == 1:
             push()
             rune = diff.index(1)
             stackAppend(rune)
             api.Log('you triggered: ' + str(rune))
+    if 9 == sum(contact):
+        isAngry = True
     if stack == answer:
         alive = False
         api.GPIOSet(ghostDev, motorPin, True)
@@ -114,4 +122,3 @@ api.LocksUnlock(4)
 sleep(1)
 api.GPIOSet(ghostDev, motorPin, False)
 api.LocksUnlock(4+0)
-
