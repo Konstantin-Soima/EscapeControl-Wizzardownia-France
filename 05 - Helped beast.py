@@ -65,8 +65,14 @@ def process_sequence():
             # Если прошло достаточное время с момента перехода в активное состояние
             if time() - sensor["last_change"] >= DEBOUNCE_TIME:
                 api.DFPlayerPlayFolder(beastDev, DF, folder, short_hint_sound)
+<<<<<<< HEAD
                 # После обработки сбрасываем время, чтобы не сработало повторно
                 sensor["last_change"] = time() + 30  # небольшая задержка до следующего срабатывания
+=======
+                sleep(32)
+                # После обработки сбрасываем время, чтобы не сработало повторно
+                sensor["last_change"] = time() + 3  # небольшая задержка до следующего срабатывания
+>>>>>>> 4aaf9f9d6efdf6bd7823ddaf3d6c271b73075d4d
     return False
 
 while True:

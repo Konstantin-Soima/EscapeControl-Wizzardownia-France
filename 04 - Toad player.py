@@ -25,15 +25,17 @@ sleep(0.1)
 for vlm in range(int(volume/4),volume):
     api.DFPlayerVolume(beastDev, DF, vlm)
     sleep(0.5)
+    api.Log("Level:"+str(vlm))
 api.DFPlayerVolume(beastDev, DF, volume)
 played = True
+api.Log("Loud")
 while played:
     readNotes = api.GPIOReadList(beastDev, notePins)
     if api.GetParameter('frogSongEnd'):
         played = False
     if sum(readNotes) == 0:
-        played = False
+
         break
     sleep(0.2)
-api.DFPlayerStop(beastDev,DF)
 api.LocksUnlock(6)
+api.DFPlayerStop(beastDev,DF)
