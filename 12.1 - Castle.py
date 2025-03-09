@@ -35,17 +35,17 @@ active = 0
 activeColour = [0,0,0]
 pins = [3,5,6,7,8,9,54,56,58,59,60,61]
 pinsLedIndex = [
-    [3,[15,16,17,18]],
-    [5,[34,35,36,37]],
+    [3,[18,19,20,21]],
+    [5,[38,39,40,41]],
     [6,[4,5,6,7]],
-    [7,[10,11,12,13]],
-    [8,[29,30,31,32]],
+    [7,[11,12,13,14]],
+    [8,[31,32,33,34]],
     [9,[91,92,93,94]],
     [54,[98,99,100,101]],
-    [56,[55,56,57,58]],
-    [58,[69,70,71,72]],
+    [56,[58,59,60]],
+    [58,[71,72,73,74]],
     [59,[64,65,66,67]],
-    [60,[41,42,43,44]],
+    [60,[44,45,46,47]],
     [61,[84,85,86,87]]
 ]
 stack = [None]*4
@@ -68,7 +68,7 @@ api.WS2812Init(castleDev, 1, ws[0], 15)  # Microhome
 api.WS2812Init(castleDev, 2, ws[1], 70) # 18 на башню
 api.WS2812Init(castleDev, 3, ws[2], 107)  # Pin panel по часовой
 api.WS2812Init(castleDev, 4, ws[3], 95)  # Castle 
-api.WS2812Init(castleDev, 5, ws[4], 95)  # Castle Big Tower
+api.WS2812Init(castleDev, 5, ws[4], 100)  # Castle Big Tower
 
 
 
@@ -82,6 +82,9 @@ api.WS2812Sync(castleDev, 1)
 for i in range(0, 95):
     api.WS2812Set(castleDev, 4, i, 255,128, 24)
 api.WS2812Sync(castleDev, 4)
+for i in range(0, 100):
+    api.WS2812Set(castleDev, 5, i, 255,128, 24)
+api.WS2812Sync(castleDev, 5)
 
 def circleColor(startPos,R,G,B): #circle activate Animation
     if active > 0:

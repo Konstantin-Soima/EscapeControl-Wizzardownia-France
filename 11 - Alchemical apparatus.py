@@ -7,10 +7,10 @@ api = EscapeControlAPI()
 alchiDev = 7
 rfidBall = 6
 rfidAlch = [2, 3, 4, 5]
-LEDpin = 10
+alchemicalLED = 10
 read = ['0000000000000000'] * 4
 preread = ['0000000000000000'] * 4
-answer = [['0172A7B100390028', '014F3BB100390019', '0111E4B100390015', '01E4E3B1003900DD'],['01E4E3B1003900DD', '0111E4B100390015', '014F3BB100390019', '0172A7B100390028']]
+answer = ['0172A7B100390028', '014F3BB100390019', '0111E4B100390015', '01E4E3B1003900DD']
 # 01A3B625003E00EB - Peruvian Dust (Yellow)
 # 0144859F003E0007 - Pixie wings extract (47/100)
 # 01E30B4C000B00EC - Ground Mandrake (2nd grade)
@@ -25,7 +25,7 @@ def playSfx(sound):
 playSfx("click_on_books_trigger")
 sleep(0.05)
 api.GPIOSet(alchiDev, 14, True) # RFID -
-api.GPIOSet(alchiDev, LEDpin, True)  # LED-
+api.GPIOSet(alchiDev, alchemicalLED, True)  # LED-
 count = 0
 haveError = False
 while True:

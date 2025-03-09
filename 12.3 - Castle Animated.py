@@ -9,22 +9,22 @@ import random
 api = EscapeControlAPI()
 
 castleDev = 9
-ws = [58, 60, 61, 59]
-NE = 64 # 54 - yellow dragon NE
-NW = 56 # 58 - red tree NW
-SE = 4 # 66 - green crack SE
-SW = 8 # 62 - blue eggs SW
-NEseq = [[3,9,7,57],[57,7,9,3]]
-NWseq = [[9,2,55,62],[62,55,2,9]]
-SEseq = [[6,55,5,63],[63,5,55,6]]
-SWseq = [[65,7,54,6],[6,54,7,65]]
+ws = [62, 66, 65, 64, 63]
+NE = 4 # - yellow dragon NE
+NW = 55 # - red tree NW
+SE = 2 # - green crack SE
+SW = 57 # - blue eggs SW
+NEseq = [[6,58,61,60],[60,61,58,6]]
+NWseq = [[58,7,56,5],[5,56,7,58]]
+SEseq = [[9,56,54,8],[8,54,56,9]]
+SWseq = [[3,61,59,9],[9,59,61,3]]
 NEend, SEend, NWend, SWend = False, False, False, False
 towers = [NE,NW,SW,SE]
 towersRange = {
-    NE: range(8,15),
-    NW: range(0,8),
-    SW: range(26,40),
-    SE: range(16,25)
+    NE: range(18,34),
+    NW: range(0,17),
+    SW: range(55,68),
+    SE: range(36,53)
 }
 towersColour = {
     NE: [128, 255, 0],
@@ -42,10 +42,12 @@ def playSfx(sound):
     player_sfx.playSound(sound + ".mp3")
 
 api.WS2812Init(castleDev, 1, ws[0], 15)  # Microhome
-api.WS2812Init(castleDev, 2, ws[1], 41) # 10 на башню
+api.WS2812Init(castleDev, 2, ws[1], 70) # 18 на башню
 api.WS2812Init(castleDev, 3, ws[2], 107)  # Pin panel по часовой
 api.WS2812Init(castleDev, 4, ws[3], 95)  # Castle 
+api.WS2812Init(castleDev, 5, ws[4], 100)  # Castle Big Tower
 
+start = time()
 
 
 #Set Castle based colour
@@ -91,7 +93,7 @@ def castleMagicBatle():
     for i in range(0,95):
         api.WS2812Set(castleDev, 4, i, int(colo[0]), int(colo[1]), int(colo[2]))
     api.WS2812Sync(castleDev, 4)
-    while True:
+    while time()-start < 60:
         start = random.randint(5, 70)
         s = -1
         h = 0.12 if s >= 0 else 0.70
@@ -156,7 +158,62 @@ def magicCircle():
         exitAngle = (107 + exitAngle + rVector) % 107
 
 
-tread = Thread(target=magicCircle)
+#tread = Thread(target=magicCircle)
+def magicAttack():
+    while time()-start < 60:
+        # Фаза 1: "Атака" – случайные вспышки в оттенках фиолетового, расширенные в 2 раза.
+        attack_duration = 5.0  # время атаки в секундах
+        start_attack = time()
+        while time() - start_attack < attack_duration:
+            side = random.choice(["left", "right"])
+            # Выбираем позицию ближе к выбранной стороне
+            if side == "left":
+                pos = random.randint(0, 10)
+            else:
+                pos = random.randint(97, 106)
+            # Для более широкой атаки зажигаем 3 соседних светодиода (pos-1, pos, pos+1)
+            # Проходим по градации оттенков фиолетового от тёмного к яркому.
+            for intensity in range(64, 256, 25):  # оттенки от темного до яркого
+                color = (intensity, 0, intensity)  # оттенок фиолетового (одинаковые R и B)
+                for offset in [-1, 0, 1]:
+                    p = pos + offset
+                    if 0 <= p < 107:
+                        api.WS2812Set(castleDev, 3, p, *color)
+                api.WS2812Sync(castleDev, 3)
+                sleep(0.005)
+            # Гасим область атаки
+            for offset in [-1, 0, 1]:
+                p = pos + offset
+                if 0 <= p < 107:
+                    api.WS2812Set(castleDev, 3, p, 0, 0, 0)
+            api.WS2812Sync(castleDev, 3)
+            sleep(0.03)
+        
+        # Фаза 2: "Ответ замка" – волна магического отблеска, исходящая из центра, с синими переливами.
+        center = 107 // 2  # Центр ленты
+        # Выполняем 3 волны репульсии
+        for wave in range(3):
+            for offset in range(center + 1):
+                factor = 1 - offset / center  # чем дальше от центра, тем меньше яркость
+                # Вычисляем градиентный синий цвет:
+                # Здесь базовый синий (яркость ~255) плавно переходит к более "холодному" оттенку с добавлением зеленого.
+                color = (0, int(150 * factor), int(255 * factor))
+                left_pos = center - offset
+                right_pos = center + offset
+                if left_pos >= 0:
+                    api.WS2812Set(castleDev, 3, left_pos, *color)
+                if right_pos < 107:
+                    api.WS2812Set(castleDev, 3, right_pos, *color)
+                api.WS2812Sync(castleDev, 3)
+                sleep(0.01)
+            # Затухание волны: гасим всю ленту
+            for pos in range(107):
+                api.WS2812Set(castleDev, 3, pos, 0, 0, 0)
+            api.WS2812Sync(castleDev, 3)
+            sleep(0.2)
+
+# В финальной части заменяем вызов magicCircle на наш новый magicAttack:
+tread = Thread(target=magicAttack)
 tread.start()
 castleMagicBatle()
 tread.join()
