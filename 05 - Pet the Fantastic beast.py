@@ -26,7 +26,7 @@ pins_analog = [54, 55, 56 ,57, 58]
 pins_digital = [0,1,2,3, 4]
 sensity = [75, 60, 82, 60, 86]
 sensity_range = [
-    range(60, 140), range(60, 140), range(60, 140), range(60, 140), range(60, 137)
+    range(60, 140), range(54, 140), range(60, 140), range(54, 140), range(60, 137)
 ]
 seq = [0, 3, 2]  # Последовательность
 longed = 5  # Порог активации
@@ -39,66 +39,9 @@ sleep(0.1)
 api.DFPlayerVolume(beastDev, DF, volume)
 sleep (0.2)
 api.DFPlayerStop(beastDev, DF)
-'''
-# Реакции на касания
-def handle_reactions():
-    api.DFPlayerPlayFolder(beastDev, DF, folder, wakeup_Sound)  # Пробуждение
-    sleep(10)
-    step = 0
-    cur = -1
-    current = [False]*5
-    angry = True
-    currentPlay = 0
-    while angry:
-        string = ""
-        for i in range(5):
-            aPin = api.GPIOReadAnalog(beastDev, pins_digital[i])
-            string += " pin" + str(pins_digital[i]) + ": " + str(aPin) + " "
-            if aPin in sensity_range[i]:  # aPin >= sensity[i]:
-                activated[i] += 1
-                api.Log(string)
-                if activated[i] >= longed:
-                    #if i != cur:
-                    if not current[i]:
-                        if i == seq[step]:
-                            step += 1
-                            api.DFPlayerPlayFolder(beastDev, DF, folder, correct_sound)
-                            api.Log("Play correct sound")
-                            currentPlay = correct_sound
-                        elif step > 0 and i == seq[step-1]:
-                            api.DFPlayerPlayFolder(beastDev, DF, folder, correct_sound)
-                            api.Log("Play correct sound")
-                            currentPlay = correct_sound
-                        else:
-                            step = 0
-                            if currentPlay != incorrect_sound:
-                                api.DFPlayerPlayFolder(beastDev, DF, folder, incorrect_sound)
-                                api.Log("Play incorrect sound")
-                                currentPlay = incorrect_sound
-                        cur = i
-                        current[i] = True
-                    deactivated[i] = 0
-                    activated[i] = -2
-                    if step >= len(seq):
-                        api.Log("complete")
-                        angry = False
-                        break
-            else:
-                deactivated[i] += 1
-                if deactivated[i] >= longed:
-                    activated[i] = 0
-                    current[i] = False
-                    if cur == i:
-                        cur = -1
-        sleep(0.1)
-        if api.GPIORead(beastDev, BUSY):
-            currentPlay = 0
-    api.DFPlayerPlayFolder(beastDev, DF, folder, hint_sound)
-
-handle_reactions()
-api.LocksUnlock(7)
-api.ScenarioStart(52)
-'''
+DEBUG_MODE=False
+while DEBUG_MODE:
+    api.Log(api.GPIOReadAnalog(beastDev,pins_analog[1]))
 # Константы
 DEBOUNCE_TIME = 0.3  # время в секундах для подтверждения касания
 SEQUENCE = [0, 3, 2]  # правильная последовательность
