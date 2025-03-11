@@ -85,7 +85,7 @@ def waitBoxWithGhost(): #Scenario 4
     sleep(0.2)
     api.LocksWait(4)
     #Outro animation
-    api.GPIOSetAnalog(mainDev,room1Light,10)
+    api.GPIOSetAnalog(mainDev,room1Light,1)
     api.DFPlayerBegin(ghostDev, playerPins[0], playerPins[1], playerPins[2])
     sleep(0.2)
     api.DFPlayerStop(ghostDev, playerPins[0])
@@ -130,9 +130,10 @@ def waitKnockingToTheDoor(): #Scenario 5
     api = EscapeControlAPI()
     api.LocksWait(5)
     player_ost.volume(180) #Higher OST music 
-    api.GPIOSet(mainDev, 19, False) #Elf's door lock    
+    api.GPIOSet(mainDev, 19, False) #Elf's door lock
     api.ScenarioStop(5)
     api.ScenarioStart(48)
+    setFadeLight(elfDev, "Off", 1)
 
 def waitToadPlayer():
     api = EscapeControlAPI()
@@ -141,11 +142,11 @@ def waitToadPlayer():
     api.LocksWait(6)
     api.ScenarioStop(6)
     #звук побудки
+    api.DFPlayerVolume(dfrxtx[2][0],dfrxtx[2][1], 20)
     sleep(0.1)
     api.DFPlayerPlayFolder(dfrxtx[2][0],dfrxtx[2][1],folder_id,wakeup_sound)
     sleep(10)
     api.SetParameter('frogSongEnd', 1) 
-
 
 def waitCabinetCombination():
     api = EscapeControlAPI()
@@ -161,7 +162,9 @@ def waitTapestry():
     api = EscapeControlAPI()
     sleep(0.2)
     api.LocksWait(11)
+    api.ScenarioStop(11)
     playTxt("tapestry_solved")
+    api.GPIOSet(mainDev,room2Light,True)
 
 def waitAlchemical():
     rfidControlPin = 12         # Пин для управления RFID (ON/OFF)
@@ -192,7 +195,7 @@ def waitCastle():
     api.ScenarioStop(15)
     api.ScenarioStop(14)
     playTxt("activate_castle_protection")
-    api.ScenarioStart(16) #Castle animation
+    api.ScenarioStart(54) #Castle animation
     sleep(25)
     playTxt("outro")
 
@@ -223,7 +226,7 @@ def hit(duration = 0.07):  # Сильно бьёт
 
 def setFadeLight(device,color,duration):
     color_map = {
-        "Yellow": (255, 170, 0),
+        "Yellow": (230, 70, 0),
         "Blue": (135, 66, 200),
         "Off": (0, 0, 0),
     }
@@ -234,11 +237,11 @@ def setFadeLight(device,color,duration):
         api = EscapeControlAPI()
         for step in range(steps):
             fraction = (math.exp(a * step / steps) - 1) / (math.exp(a) - 1)
-
             api.GPIOSetAnalog(device, rgbPins[0], int(rgb[1] * fraction)) #GRB Pins
             api.GPIOSetAnalog(device, rgbPins[1], int(rgb[0] * fraction))
             api.GPIOSetAnalog(device, rgbPins[2], int(rgb[2] * fraction))
             sleep(0.1)
+            #api.Log("sleep:"+str(duration/steps)+" R: "+str(fraction))
     # Запускаем анимацию в отдельном потоке
     thread = threading.Thread(target=fade)
     thread.daemon = True
@@ -257,6 +260,7 @@ def room1():
     api.GPIOSet(mainDev, doorRoom2, True)
     api.ScenarioStart(3)
     api.LocksWait(3)
+    api.ScenarioStop(3)
     # Когда игроки берут палочки, срабатывает электроника и проигрывается аудио.Загорается свет в комнате.
     playTxt("intro")
     setFadeLight(ghostDev, "Blue", 60)
@@ -279,7 +283,7 @@ def room1():
     # Активация шлюза
     api.ScenarioStart(9)
 
-
+'''Second room'''
 def room2():
     api.Log("Office opened")
     api.GPIOSet(mainDev, room2Light, True)
@@ -289,6 +293,7 @@ def room2():
     playTxt("click_on_books")
     api.ScenarioStart(10)
     api.LocksWait(10)
+    api.ScenarioStop(10)
     api.GPIOSet(mainDev, UVLightLocker, False)  # Lighter Locker
     api.ScenarioStart(11)
     waitTapestry()
