@@ -15,8 +15,8 @@ SE = 2 # - green crack SE
 SW = 57 # - blue eggs SW
 NEseq = [[6,58,61,60],[60,61,58,6]]
 NWseq = [[58,7,56,5],[5,56,7,58]]
-SEseq = [[9,56,54,8],[8,54,56,9]]
-SWseq = [[3,61,59,9],[9,59,61,3]]
+SEseq = [[56,54,8],[8,54,56]]#[[9,56,54,8],[8,54,56,9]]
+SWseq = [[3,61,59],[59,61,3]]#[[3,61,59,9],[9,59,61,3]]
 NEend, SEend, NWend, SWend = False, False, False, False
 towers = [NE,NW,SW,SE]
 towersRange = {
@@ -174,7 +174,7 @@ while True:
                     for pn in btns[1]:
                         api.WS2812Set(castleDev, 3, pn, activeColour[1], activeColour[0], activeColour[2]) #GRB LED
                 api.WS2812Sync(castleDev, 3)
-        if pushed == SE and (stack == SEseq[0] or stack == SEseq[1]):
+        if pushed == SE and any(stack[-len(seq):] == seq for seq in SEseq):
             SEend = True
             playSfx("tower_activation")
             for i in range(-128,129):
@@ -182,7 +182,7 @@ while True:
                 #api.GPIOSetAnalog(castleDev, 12, j) create animation here
             api.Log(stack)
             stack = [None]*4
-        if pushed == NE and (stack == NEseq[0] or stack == NEseq[1]):
+        if pushed == NE and any(stack[-len(seq):] == seq for seq in NEseq):
             NEend = True
             playSfx("tower_activation")
             for i in range(-128,129):
@@ -190,7 +190,7 @@ while True:
                 #api.GPIOSetAnalog(castleDev, 12, j) create animation here
             api.Log(stack)
             stack = [None]*4
-        if pushed == SW and (stack == SWseq[0] or stack == SWseq[1]):
+        if pushed == SW and any(stack[-len(seq):] == seq for seq in SWseq):
             SWend = True
             playSfx("tower_activation")
             for i in range(-128,129):
@@ -198,7 +198,7 @@ while True:
                 #api.GPIOSetAnalog(castleDev, 12, j) create animation here
             api.Log(stack)
             stack = [None]*4
-        if pushed == NW and (stack == NWseq[0] or stack == NWseq[1]):
+        if pushed == NW and any(stack[-len(seq):] == seq for seq in NWseq):
             NWend = True
             playSfx("tower_activation")
             for i in range(-128,129):
